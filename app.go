@@ -16,6 +16,9 @@ import (
 	"time"
 )
 
+// offlineMode desliga as consultas ao GitHub ao abrir (usado nos testes).
+var offlineMode bool
+
 type App struct {
 	ctx     context.Context
 	cancel  context.CancelFunc
@@ -63,8 +66,10 @@ func newApp(dataDir string) (*App, error) {
 	}
 	app.life = newLifecycle()
 	app.local = newLocalManager(app)
-	go app.catalog.RefreshRemote(ctx)
-	go app.checkUpdate()
+	if !offlineMode {
+		go app.catalog.RefreshRemote(ctx)
+		go app.checkUpdate()
+	}
 	go app.life.run(ctx)
 	return app, nil
 }

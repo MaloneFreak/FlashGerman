@@ -29,6 +29,7 @@ func TestMain(m *testing.M) {
 		runFakeLlamaServer()
 		return
 	}
+	offlineMode = true // os testes não dependem da internet
 	os.Exit(m.Run())
 }
 

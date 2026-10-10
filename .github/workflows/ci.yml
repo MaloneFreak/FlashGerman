@@ -17,8 +17,13 @@ jobs:
         run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
       - name: Testes
         run: |
+          set -o pipefail
           go vet ./...
-          go test -race ./...
+          # Em caso de falha, os detalhes viram anotações (visíveis no resumo da execução).
+          go test -race -v ./... 2>&1 | tee test.log || {
+            grep -E -- "--- FAIL|_test.go:[0-9]+:|panic:" test.log | head -20 | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          }
           node tools/web/test/anki.test.mjs
       - name: Compila para todos os sistemas
         run: |
