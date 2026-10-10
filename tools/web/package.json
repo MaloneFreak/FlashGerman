@@ -1,0 +1,15 @@
+{
+  "name": "flashgerman-web-build",
+  "private": true,
+  "description": "Gera o CSS (Tailwind) e copia fontes/ícones para a pasta web/. Só é necessário para quem for alterar a interface.",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "tailwindcss -c tailwind.config.js -i input.css -o ../../web/app.css --watch"
+  },
+  "devDependencies": {
+    "@fontsource-variable/outfit": "^5.2.0",
+    "@fontsource-variable/plus-jakarta-sans": "^5.2.0",
+    "@fortawesome/fontawesome-free": "^6.7.0",
+    "tailwindcss": "^3.4.17"
+  }
+}

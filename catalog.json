@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "updated": "2026-10-10",
+  "providers": [
+    {
+      "id": "gemini",
+      "name": "Google Gemini",
+      "kind": "openai",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "pricing": "free",
+      "badge": "Grátis com limites",
+      "description": "Plano gratuito do Google AI Studio (modelos Flash). Ótima qualidade em alemão. Fora da UE, o Google pode usar os textos do plano gratuito para treino.",
+      "key_url": "https://aistudio.google.com/apikey",
+      "key_hint": "Começa com AIza...",
+      "needs_key": true,
+      "model_prefer": [
+        "flash"
+      ],
+      "model_exclude": [
+        "image",
+        "tts",
+        "live",
+        "embedding",
+        "audio",
+        "veo",
+        "imagen",
+        "learnlm",
+        "aqa",
+        "robotics",
+        "computer",
+        "native",
+        "lyria",
+        "gemma"
+      ],
+      "strip_prefix": "models/"
+    },
+    {
+      "id": "groq",
+      "name": "Groq",
+      "kind": "openai",
+      "base_url": "https://api.groq.com/openai/v1",
+      "pricing": "free",
+      "badge": "Grátis com limites",
+      "description": "Plano gratuito com limite diário de pedidos. Respostas muito rápidas com modelos abertos.",
+      "key_url": "https://console.groq.com/keys",
+      "key_hint": "Começa com gsk_...",
+      "needs_key": true,
+      "model_prefer": [
+        "gpt-oss-120b",
+        "kimi-k2",
+        "llama-4-maverick",
+        "llama-3.3-70b",
+        "qwen",
+        "gpt-oss"
+      ],
+      "model_exclude": [
+        "whisper",
+        "guard",
+        "tts",
+        "playai",
+        "orpheus",
+        "distil",
+        "compound",
+        "prompt-guard",
+        "safeguard"
+      ]
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "kind": "openai",
+      "base_url": "https://openrouter.ai/api/v1",
+      "pricing": "free",
+      "badge": "Modelos grátis",
+      "description": "Uma chave para centenas de modelos. Os que terminam em \":free\" são gratuitos (com limite diário); os outros são pagos por uso.",
+      "key_url": "https://openrouter.ai/keys",
+      "key_hint": "Começa com sk-or-...",
+      "needs_key": true,
+      "prefer_free": true,
+      "model_prefer": [
+        "gemma",
+        "llama",
+        "qwen",
+        "deepseek",
+        "mistral",
+        "gpt-oss"
+      ],
+      "model_exclude": [
+        "embed",
+        "audio",
+        "image",
+        "vision-only",
+        "guard",
+        "tts"
+      ]
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral AI",
+      "kind": "openai",
+      "base_url": "https://api.mistral.ai/v1",
+      "pricing": "free",
+      "badge": "Grátis (plano Experiment)",
+      "description": "Plano gratuito \"Experiment\" no console da Mistral (exige aceitar o uso dos dados para treino). Empresa europeia.",
+      "key_url": "https://console.mistral.ai/api-keys",
+      "key_hint": "",
+      "needs_key": true,
+      "model_prefer": [
+        "mistral-medium-latest",
+        "mistral-large-latest",
+        "mistral-small-latest",
+        "medium",
+        "large",
+        "small"
+      ],
+      "model_exclude": [
+        "embed",
+        "ocr",
+        "moderation",
+        "codestral",
+        "pixtral",
+        "voxtral",
+        "devstral",
+        "transcribe",
+        "magistral"
+      ]
+    },
+    {
+      "id": "cerebras",
+      "name": "Cerebras",
+      "kind": "openai",
+      "base_url": "https://api.cerebras.ai/v1",
+      "pricing": "free",
+      "badge": "Grátis com limites",
+      "description": "Plano gratuito com cota diária de tokens e respostas extremamente rápidas.",
+      "key_url": "https://cloud.cerebras.ai/",
+      "key_hint": "Começa com csk-...",
+      "needs_key": true,
+      "model_prefer": [
+        "gpt-oss-120b",
+        "llama-3.3-70b",
+        "qwen",
+        "llama"
+      ],
+      "model_exclude": []
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI (ChatGPT)",
+      "kind": "openai",
+      "base_url": "https://api.openai.com/v1",
+      "pricing": "paid",
+      "badge": "Pago",
+      "description": "Pago por uso. Os modelos \"mini\" custam centavos para gerar centenas de frases.",
+      "key_url": "https://platform.openai.com/api-keys",
+      "key_hint": "Começa com sk-...",
+      "needs_key": true,
+      "model_prefer": [
+        "-mini",
+        "gpt-"
+      ],
+      "model_exclude": [
+        "audio",
+        "realtime",
+        "tts",
+        "whisper",
+        "embedding",
+        "dall-e",
+        "image",
+        "transcribe",
+        "search",
+        "moderation",
+        "davinci",
+        "babbage",
+        "instruct",
+        "codex",
+        "sora",
+        "computer",
+        "nano",
+        "^o1",
+        "^o3",
+        "^o4",
+        "chat-latest",
+        "deep-research",
+        "oss"
+      ]
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic (Claude)",
+      "kind": "anthropic",
+      "base_url": "https://api.anthropic.com",
+      "pricing": "paid",
+      "badge": "Pago",
+      "description": "Pago por uso. Excelente qualidade nas explicações gramaticais em português.",
+      "key_url": "https://platform.claude.com/settings/keys",
+      "key_hint": "Começa com sk-ant-...",
+      "needs_key": true,
+      "model_prefer": [
+        "haiku",
+        "sonnet"
+      ],
+      "model_exclude": []
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama (já instalado)",
+      "kind": "openai",
+      "base_url": "http://localhost:11434/v1",
+      "pricing": "local",
+      "badge": "Local",
+      "description": "Use modelos que você já baixou no Ollama. O Ollama precisa estar aberto.",
+      "key_url": "https://ollama.com/download",
+      "key_hint": "",
+      "needs_key": false,
+      "editable_url": true,
+      "model_prefer": [
+        "gemma",
+        "qwen",
+        "llama",
+        "mistral"
+      ],
+      "model_exclude": [
+        "embed"
+      ]
+    },
+    {
+      "id": "lmstudio",
+      "name": "LM Studio (já instalado)",
+      "kind": "openai",
+      "base_url": "http://localhost:1234/v1",
+      "pricing": "local",
+      "badge": "Local",
+      "description": "Use o servidor local do LM Studio (aba Developer > Start Server).",
+      "key_url": "https://lmstudio.ai/",
+      "key_hint": "",
+      "needs_key": false,
+      "editable_url": true,
+      "model_prefer": [
+        "gemma",
+        "qwen",
+        "llama",
+        "mistral"
+      ],
+      "model_exclude": [
+        "embed"
+      ]
+    },
+    {
+      "id": "custom",
+      "name": "Outra API (compatível com OpenAI)",
+      "kind": "openai",
+      "base_url": "",
+      "pricing": "custom",
+      "badge": "Avançado",
+      "description": "Qualquer serviço com API no formato da OpenAI (DeepSeek, Together, Fireworks, vLLM...). Informe o endereço base terminado em /v1.",
+      "key_url": "",
+      "key_hint": "",
+      "needs_key": false,
+      "editable_url": true,
+      "model_prefer": [],
+      "model_exclude": [
+        "embed",
+        "tts",
+        "whisper",
+        "image"
+      ]
+    }
+  ],
+  "local_models": [
+    {
+      "id": "gemma-4-e2b",
+      "name": "Gemma 4 E2B",
+      "badge": "Leve",
+      "description": "O mais leve e rápido. Bom para computadores simples, mas erra mais nas explicações.",
+      "repo": "unsloth/gemma-4-E2B-it-GGUF",
+      "quants": [
+        "Q4_K_M",
+        "Q4_K_S",
+        "Q4_0",
+        "IQ4_XS",
+        "UD-Q4_K_XL"
+      ],
+      "fallback_file": "gemma-4-E2B-it-Q4_K_M.gguf",
+      "approx_size_gb": 3.1,
+      "min_ram_gb": 6,
+      "license": "Apache 2.0"
+    },
+    {
+      "id": "gemma-4-e4b",
+      "name": "Gemma 4 E4B",
+      "badge": "Recomendado",
+      "description": "Melhor equilíbrio entre qualidade e velocidade. Muito bom em alemão e português.",
+      "repo": "unsloth/gemma-4-E4B-it-GGUF",
+      "quants": [
+        "Q4_K_M",
+        "Q4_K_S",
+        "Q4_0",
+        "IQ4_XS",
+        "UD-Q4_K_XL"
+      ],
+      "fallback_file": "gemma-4-E4B-it-Q4_K_M.gguf",
+      "approx_size_gb": 5.0,
+      "min_ram_gb": 8,
+      "license": "Apache 2.0",
+      "recommended": true
+    },
+    {
+      "id": "gemma-4-12b",
+      "name": "Gemma 4 12B",
+      "badge": "Mais qualidade",
+      "description": "Frases e explicações melhores, mas bem mais lento sem placa de vídeo. Para computadores com bastante memória.",
+      "repo": "unsloth/gemma-4-12b-it-GGUF",
+      "quants": [
+        "Q4_K_M",
+        "Q4_K_S",
+        "Q4_0",
+        "IQ4_XS",
+        "UD-Q4_K_XL"
+      ],
+      "fallback_file": "gemma-4-12b-it-Q4_K_M.gguf",
+      "approx_size_gb": 7.1,
+      "min_ram_gb": 16,
+      "license": "Apache 2.0"
+    }
+  ],
+  "engine": {
+    "releases_api": "https://api.github.com/repos/ggml-org/llama.cpp/releases?per_page=25",
+    "assets": {
+      "windows-amd64-cpu": "-bin-win-cpu-x64\\.zip$",
+      "windows-amd64-vulkan": "-bin-win-vulkan-x64\\.zip$",
+      "windows-arm64-cpu": "-bin-win-cpu-arm64\\.zip$",
+      "linux-amd64-cpu": "-bin-ubuntu-x64\\.(tar\\.gz|zip)$",
+      "linux-amd64-vulkan": "-bin-ubuntu-vulkan-x64\\.(tar\\.gz|zip)$",
+      "linux-arm64-cpu": "-bin-ubuntu-arm64\\.(tar\\.gz|zip)$",
+      "darwin-arm64-cpu": "-bin-macos-arm64\\.(tar\\.gz|zip)$",
+      "darwin-amd64-cpu": "-bin-macos-x64\\.(tar\\.gz|zip)$"
+    },
+    "fallback_tag": "b11540",
+    "fallback_url": "https://github.com/ggml-org/llama.cpp/releases/download/{tag}/{asset}",
+    "fallback_assets": {
+      "windows-amd64-cpu": "llama-{tag}-bin-win-cpu-x64.zip",
+      "windows-amd64-vulkan": "llama-{tag}-bin-win-vulkan-x64.zip",
+      "windows-arm64-cpu": "llama-{tag}-bin-win-cpu-arm64.zip",
+      "linux-amd64-cpu": "llama-{tag}-bin-ubuntu-x64.tar.gz",
+      "linux-amd64-vulkan": "llama-{tag}-bin-ubuntu-vulkan-x64.tar.gz",
+      "linux-arm64-cpu": "llama-{tag}-bin-ubuntu-arm64.tar.gz",
+      "darwin-arm64-cpu": "llama-{tag}-bin-macos-arm64.tar.gz",
+      "darwin-amd64-cpu": "llama-{tag}-bin-macos-x64.tar.gz"
+    }
+  }
+}

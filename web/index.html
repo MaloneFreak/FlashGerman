@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="fg-token" content="__FG_TOKEN__">
+    <meta name="fg-version" content="__FG_VERSION__">
+    <title>FlashGerman · Frases alemãs para o Anki</title>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="stylesheet" href="vendor/fonts.css">
+    <link rel="stylesheet" href="vendor/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="vendor/fontawesome/css/solid.min.css">
+    <link rel="stylesheet" href="app.css">
+    <script type="module" src="app.js"></script>
+</head>
+<body class="min-h-full flex flex-col font-sans antialiased text-slate-100 bg-slate-950 selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- Cabeçalho -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="h-10 w-10 shrink-0 rounded-xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-emerald-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20">DE</div>
+                <div class="min-w-0">
+                    <h1 class="font-display font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+                        FlashGerman <span class="hidden sm:inline text-amber-400 font-normal text-xs px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">🇩🇪 ➔ 🇧🇷</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block truncate">Frases reais do dia a dia para o Anki</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="enginePill" type="button" class="hidden md:flex items-center gap-2 text-xs text-slate-300 bg-slate-950 border border-slate-800 hover:border-amber-400/50 rounded-lg px-3 py-2 max-w-[320px] transition" title="Trocar a IA usada">
+                    <i id="enginePillIcon" class="fa-solid fa-bolt text-amber-400"></i>
+                    <span id="enginePillText" class="truncate">IA não configurada</span>
+                </button>
+                <button type="button" data-open-modal="ankiGuideModal" class="text-xs sm:text-sm font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-lg transition flex items-center gap-2 border border-slate-700">
+                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                    <span class="hidden lg:inline">Como importar no</span> Anki?
+                </button>
+                <button id="settingsBtn" type="button" title="Configurações da IA" class="h-9 w-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition flex items-center justify-center">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+                <button id="quitBtn" type="button" title="Fechar o FlashGerman" class="h-9 w-9 rounded-lg bg-slate-800 hover:bg-red-500/20 border border-slate-700 hover:border-red-500/40 text-slate-400 hover:text-red-300 transition flex items-center justify-center">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
+            </div>
+        </div>
+        <div id="updateBanner" class="hidden bg-emerald-500/10 border-t border-emerald-500/20 text-emerald-300 text-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-3">
+                <span><i class="fa-solid fa-circle-arrow-up mr-1.5"></i>Nova versão disponível: <b id="updateVersion"></b></span>
+                <button id="updateBtn" type="button" class="font-semibold underline hover:text-emerald-200">Baixar atualização</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Carregando -->
+    <div id="bootView" class="flex-1 flex items-center justify-center">
+        <div class="w-12 h-12 border-4 border-amber-500/20 border-t-amber-400 rounded-full animate-spin"></div>
+    </div>
+
+    <!-- ===================== TELA DE CONFIGURAÇÃO ===================== -->
+    <main id="setupView" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Passo 1: escolher o tipo de IA -->
+        <section id="stepChoose" class="space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="font-display font-bold text-2xl sm:text-3xl text-white">Como você quer gerar as frases?</h2>
+                <p class="text-sm text-slate-400 max-w-2xl mx-auto">O FlashGerman usa uma inteligência artificial para criar as frases. Escolha uma opção abaixo; você pode trocar quando quiser na engrenagem <i class="fa-solid fa-gear text-xs"></i> lá em cima.</p>
+            </div>
+
+            <div id="currentConfigBox" class="hidden max-w-3xl mx-auto bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="text-sm">
+                    <span class="text-slate-400">Em uso agora:</span>
+                    <b id="currentConfigText" class="text-slate-100"></b>
+                </div>
+                <button id="backToMainBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm px-4 py-2 rounded-xl transition">
+                    <i class="fa-solid fa-arrow-left mr-1.5"></i>Voltar ao gerador
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+                <button type="button" data-goto="api" class="flex flex-col text-left bg-slate-900/90 border border-slate-800 hover:border-amber-400/60 rounded-2xl p-6 transition group space-y-4 shadow-xl">
+                    <div class="h-12 w-12 rounded-xl bg-amber-500/10 border border-amber-400/20 text-amber-400 flex items-center justify-center text-xl"><i class="fa-solid fa-cloud"></i></div>
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-white group-hover:text-amber-300 transition">Usar uma API (online)</h3>
+                        <p class="text-sm text-slate-400 mt-1">Cole uma chave de API e pronto. Há opções <b class="text-emerald-400">gratuitas</b> (Google Gemini, Groq, OpenRouter, Mistral) e pagas (OpenAI, Claude).</p>
+                    </div>
+                    <ul class="text-xs text-slate-400 space-y-1">
+                        <li><i class="fa-solid fa-check text-emerald-400 mr-1.5"></i>Melhor qualidade e mais rápido</li>
+                        <li><i class="fa-solid fa-check text-emerald-400 mr-1.5"></i>Funciona em qualquer computador</li>
+                        <li><i class="fa-solid fa-minus text-slate-500 mr-1.5"></i>Precisa de internet e de uma conta no provedor</li>
+                    </ul>
+                </button>
+
+                <button type="button" data-goto="local" class="flex flex-col text-left bg-slate-900/90 border border-slate-800 hover:border-emerald-400/60 rounded-2xl p-6 transition group space-y-4 shadow-xl">
+                    <div class="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-400/20 text-emerald-400 flex items-center justify-center text-xl"><i class="fa-solid fa-microchip"></i></div>
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-white group-hover:text-emerald-300 transition">Baixar a IA no computador (offline)</h3>
+                        <p class="text-sm text-slate-400 mt-1">Um clique baixa um modelo gratuito que roda no seu PC. Sem conta, sem chave, sem limites.</p>
+                    </div>
+                    <ul class="text-xs text-slate-400 space-y-1">
+                        <li><i class="fa-solid fa-check text-emerald-400 mr-1.5"></i>100% grátis e privado, funciona sem internet</li>
+                        <li><i class="fa-solid fa-minus text-slate-500 mr-1.5"></i>Download de 3 a 7 GB (uma vez só)</li>
+                        <li><i class="fa-solid fa-minus text-slate-500 mr-1.5"></i>Mais lento e erra um pouco mais que as APIs</li>
+                    </ul>
+                </button>
+            </div>
+        </section>
+
+        <!-- Passo 2a: API -->
+        <section id="stepApi" class="hidden space-y-6">
+            <div class="flex items-center gap-3">
+                <button type="button" data-goto="choose" class="h-9 w-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center" title="Voltar"><i class="fa-solid fa-arrow-left"></i></button>
+                <div>
+                    <h2 class="font-display font-bold text-xl text-white">Escolha o provedor de IA</h2>
+                    <p class="text-xs text-slate-400">As sugestões mudam com o tempo; a lista de modelos vem sempre atualizada direto do provedor.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div id="providerList" class="lg:col-span-5 space-y-2"></div>
+
+                <div class="lg:col-span-7">
+                    <div id="providerEmpty" class="h-full min-h-[300px] border-2 border-dashed border-slate-800 rounded-2xl flex items-center justify-center text-sm text-slate-500 p-8 text-center">
+                        Selecione um provedor à esquerda.<br>Na dúvida, comece pelo <b class="text-slate-300 mx-1">Google Gemini</b> (grátis).
+                    </div>
+
+                    <form id="providerForm" class="hidden bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-xl" autocomplete="off">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 id="pfName" class="font-display font-bold text-lg text-white"></h3>
+                                <p id="pfDesc" class="text-xs text-slate-400 mt-1 leading-relaxed"></p>
+                            </div>
+                            <span id="pfBadge" class="shrink-0 text-[10px] font-semibold uppercase px-2 py-1 rounded-md"></span>
+                        </div>
+
+                        <div id="pfKeyLinkBox" class="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-200 flex items-center justify-between gap-3">
+                            <span><i class="fa-solid fa-key mr-1.5 text-amber-400"></i><span id="pfKeyLinkText">Crie sua chave no site do provedor (abre no navegador).</span></span>
+                            <button id="pfKeyLink" type="button" class="shrink-0 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition">Abrir site</button>
+                        </div>
+
+                        <div id="pfUrlBox" class="space-y-1.5">
+                            <label for="pfUrl" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Endereço da API</label>
+                            <input id="pfUrl" type="url" spellcheck="false" placeholder="https://api.exemplo.com/v1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-400">
+                        </div>
+
+                        <div id="pfKeyBox" class="space-y-1.5">
+                            <label for="pfKey" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Chave de API</label>
+                            <div class="relative">
+                                <input id="pfKey" type="password" spellcheck="false" autocomplete="off" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-amber-400 font-mono">
+                                <button id="pfKeyToggle" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 text-slate-500 hover:text-slate-200" title="Mostrar/ocultar"><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                            <p id="pfKeyHelp" class="text-[11px] text-slate-500"></p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <label for="pfModel" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Modelo</label>
+                                <button id="pfLoadModels" type="button" class="text-xs font-medium text-amber-400 hover:text-amber-300"><i class="fa-solid fa-rotate mr-1"></i>Carregar lista de modelos</button>
+                            </div>
+                            <div id="pfModelTools" class="hidden flex flex-col sm:flex-row gap-2">
+                                <div class="relative flex-1">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                                    <input id="pfModelSearch" type="text" placeholder="Filtrar modelos..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+                                </div>
+                                <label id="pfFreeOnlyBox" class="hidden items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                                    <input id="pfFreeOnly" type="checkbox" checked class="h-4 w-4 accent-amber-500"> Só gratuitos
+                                </label>
+                            </div>
+                            <select id="pfModel" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-amber-400 disabled:opacity-50" disabled>
+                                <option value="">Carregue a lista de modelos primeiro</option>
+                            </select>
+                            <p id="pfModelInfo" class="text-[11px] text-slate-500">O melhor modelo para a tarefa é escolhido automaticamente, mas você pode trocar.</p>
+                            <details class="text-xs text-slate-400">
+                                <summary class="cursor-pointer hover:text-slate-200 select-none">Digitar o nome do modelo manualmente</summary>
+                                <input id="pfModelManual" type="text" spellcheck="false" placeholder="ex.: nome-exato-do-modelo" class="mt-2 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400 font-mono">
+                            </details>
+                        </div>
+
+                        <div id="pfStatus" class="hidden text-xs rounded-xl p-3 border"></div>
+
+                        <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                            <button id="pfSave" type="submit" class="flex-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-wait">
+                                <i class="fa-solid fa-plug-circle-check"></i><span>Testar e começar a usar</span>
+                            </button>
+                            <button id="pfForget" type="button" class="hidden text-xs text-slate-500 hover:text-red-400 px-3 py-2">Apagar chave salva</button>
+                        </div>
+                        <p class="text-[11px] text-slate-500"><i class="fa-solid fa-lock mr-1"></i>A chave fica salva só no seu computador, na pasta de dados do app, e é enviada apenas ao provedor escolhido.</p>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Passo 2b: IA local -->
+        <section id="stepLocal" class="hidden space-y-6">
+            <div class="flex items-center gap-3">
+                <button type="button" data-goto="choose" class="h-9 w-9 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center" title="Voltar"><i class="fa-solid fa-arrow-left"></i></button>
+                <div>
+                    <h2 class="font-display font-bold text-xl text-white">IA no seu computador</h2>
+                    <p class="text-xs text-slate-400">Baixa o motor <b>llama.cpp</b> e um modelo gratuito. Só precisa de internet para o download.</p>
+                </div>
+            </div>
+
+            <div id="sysInfo" class="flex flex-wrap gap-2 text-xs"></div>
+
+            <div id="localUnsupported" class="hidden bg-red-500/10 border border-red-500/30 text-red-300 rounded-2xl p-4 text-sm"></div>
+
+            <div id="localModels" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <label id="gpuBox" class="hidden flex items-start gap-3 cursor-pointer text-sm text-slate-300">
+                    <input id="gpuToggle" type="checkbox" class="mt-0.5 h-4 w-4 accent-emerald-500">
+                    <span><b class="text-slate-100">Usar a placa de vídeo (GPU, via Vulkan)</b><br><span class="text-xs text-slate-400">Bem mais rápido se você tiver placa NVIDIA, AMD ou Intel Arc com 6 GB+ de memória. Se der erro, desmarque.</span></span>
+                </label>
+                <details class="text-xs text-slate-400">
+                    <summary class="cursor-pointer hover:text-slate-200 select-none">Avançado: usar outro modelo do Hugging Face (formato GGUF)</summary>
+                    <div class="mt-3 flex flex-col sm:flex-row gap-2">
+                        <input id="customRepo" type="text" spellcheck="false" placeholder="usuario/nome-do-modelo-GGUF" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-400 font-mono">
+                        <button id="customRepoBtn" type="button" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium px-3 py-2 rounded-lg">Baixar este</button>
+                    </div>
+                    <p class="mt-2">O app escolhe automaticamente o arquivo na quantização Q4_K_M (ou a mais próxima).</p>
+                </details>
+            </div>
+
+            <!-- Progresso -->
+            <div id="installPanel" class="hidden bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-5 space-y-3 shadow-xl">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-slate-100 min-w-0">
+                        <i id="installIcon" class="fa-solid fa-circle-notch animate-spin text-emerald-400"></i>
+                        <span id="installLabel" class="truncate">Preparando…</span>
+                    </div>
+                    <button id="installCancel" type="button" class="shrink-0 text-xs text-slate-400 hover:text-red-300 border border-slate-700 hover:border-red-500/40 rounded-lg px-3 py-1.5"><i class="fa-solid fa-pause mr-1"></i>Pausar</button>
+                </div>
+                <div class="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="installBar" class="h-full w-0 bg-gradient-to-r from-emerald-500 to-amber-400 transition-all duration-300"></div>
+                </div>
+                <div class="flex justify-between text-[11px] text-slate-400">
+                    <span id="installBytes"></span>
+                    <span id="installEta"></span>
+                </div>
+                <p id="installError" class="hidden text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-lg p-2.5"></p>
+            </div>
+
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+                <i class="fa-solid fa-circle-info mr-1"></i>Os modelos são da família Gemma (Google, licença Apache 2.0), baixados do Hugging Face. Ficam na pasta de dados do app; você pode apagá-los aqui quando quiser.
+                Sem placa de vídeo, gerar 8 frases leva de 1 a 5 minutos, dependendo do computador.
+                <button id="openDataDir" type="button" class="underline hover:text-slate-300">Abrir pasta de dados</button>
+            </p>
+        </section>
+    </main>
+
+    <!-- ===================== GERADOR ===================== -->
+    <main id="mainView" class="hidden flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        <section class="lg:col-span-4 space-y-6">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-5">
+                <div class="border-b border-slate-800 pb-4">
+                    <h2 class="font-display font-bold text-lg text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> Configurar Frases
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Gere frases reais com gramática contextualizada para o cotidiano na Alemanha.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="themeSelect" class="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+                        <i class="fa-solid fa-folder-open text-amber-400 mr-1.5"></i> Tema da Situação
+                    </label>
+                    <select id="themeSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-amber-400 transition"></select>
+                    <div id="customThemeContainer" class="hidden mt-2">
+                        <input type="text" id="customThemeInput" maxlength="200" placeholder="Ex.: Entrevista de emprego na Alemanha, feira livre..." class="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="tenseSelect" class="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+                        <i class="fa-solid fa-clock text-amber-400 mr-1.5"></i> Tempo Verbal / Modo
+                    </label>
+                    <select id="tenseSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-amber-400 transition">
+                        <option value="mixed">🔀 Misturado (vários tempos)</option>
+                        <option value="praesens">🟢 Präsens (presente falado e ações frequentes)</option>
+                        <option value="perfekt">🟡 Perfekt (passado falado do dia a dia)</option>
+                        <option value="praeteritum">📖 Präteritum (passado narrativo, modais, sein/haben)</option>
+                        <option value="futur">🔵 Futur I (futuro e intenções)</option>
+                        <option value="konjunktiv2">🟣 Konjunktiv II (pedidos educados e hipóteses)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-300 block">
+                        <i class="fa-solid fa-layer-group text-amber-400 mr-1.5"></i> Nível CEFR
+                    </span>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="level" value="A1-A2" class="peer sr-only" checked>
+                            <div class="text-center py-2 text-xs font-medium bg-slate-950 border border-slate-800 rounded-lg text-slate-400 peer-checked:bg-amber-500/10 peer-checked:border-amber-400 peer-checked:text-amber-400 peer-focus-visible:ring-1 peer-focus-visible:ring-amber-400 transition">A1 - A2<br><span class="text-[10px] opacity-80">Iniciante</span></div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="level" value="B1-B2" class="peer sr-only">
+                            <div class="text-center py-2 text-xs font-medium bg-slate-950 border border-slate-800 rounded-lg text-slate-400 peer-checked:bg-amber-500/10 peer-checked:border-amber-400 peer-checked:text-amber-400 peer-focus-visible:ring-1 peer-focus-visible:ring-amber-400 transition">B1 - B2<br><span class="text-[10px] opacity-80">Intermediário</span></div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="level" value="C1" class="peer sr-only">
+                            <div class="text-center py-2 text-xs font-medium bg-slate-950 border border-slate-800 rounded-lg text-slate-400 peer-checked:bg-amber-500/10 peer-checked:border-amber-400 peer-checked:text-amber-400 peer-focus-visible:ring-1 peer-focus-visible:ring-amber-400 transition">C1<br><span class="text-[10px] opacity-80">Avançado</span></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs">
+                        <label for="countRange" class="font-semibold uppercase tracking-wider text-slate-300"><i class="fa-solid fa-list-ol text-amber-400 mr-1.5"></i> Quantidade</label>
+                        <span id="countDisplay" class="font-bold text-amber-400">8 frases</span>
+                    </div>
+                    <input type="range" id="countRange" min="3" max="20" value="8" step="1" class="w-full accent-amber-400 bg-slate-800 h-2 rounded-lg cursor-pointer">
+                </div>
+
+                <div class="space-y-2 pt-1 border-t border-slate-800">
+                    <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300 pt-3">
+                        <input type="checkbox" id="includeColloquial" checked class="h-4 w-4 accent-amber-500">
+                        <span>Priorizar linguagem <b>falada e natural</b> (Umgangssprache)</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                        <input type="checkbox" id="includePronunciation" checked class="h-4 w-4 accent-amber-500">
+                        <span>Incluir dica de pronúncia para brasileiros</span>
+                    </label>
+                </div>
+
+                <button id="generateBtn" type="button" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-60 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Gerar Frases com IA</span>
+                </button>
+            </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-display font-semibold text-sm text-slate-200">Seu Baralho</h3>
+                        <p id="deckStatsText" class="text-xs text-slate-400">0 frases prontas para exportar</p>
+                    </div>
+                    <span id="badgeCount" class="bg-amber-500/10 text-amber-400 border border-amber-400/20 px-2.5 py-1 rounded-full font-bold text-xs">0</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="exportCsvBtn" type="button" disabled class="bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/30 text-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-csv text-sm"></i> Baixar .CSV
+                    </button>
+                    <button id="copyAnkiBtn" type="button" disabled class="bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-copy text-sm"></i> Copiar (TSV)
+                    </button>
+                </div>
+                <p class="text-[11px] text-slate-500">O baralho fica salvo automaticamente no seu computador.</p>
+
+                <button id="clearBtn" type="button" disabled class="w-full text-xs text-slate-500 hover:text-red-400 py-1 transition flex items-center justify-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-trash-can"></i> Limpar todas as frases
+                </button>
+            </div>
+        </section>
+
+        <section class="lg:col-span-8 flex flex-col space-y-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5">
+                <div class="relative w-full sm:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" id="searchInput" placeholder="Filtrar frase ou palavra..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+                </div>
+                <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 w-full sm:w-auto justify-center">
+                    <button id="viewGridBtn" type="button" class="px-3 py-1 text-xs font-medium rounded-md bg-amber-500 text-slate-950 transition">
+                        <i class="fa-solid fa-address-card mr-1"></i> Cartões Flip
+                    </button>
+                    <button id="viewTableBtn" type="button" class="px-3 py-1 text-xs font-medium rounded-md text-slate-400 hover:text-white transition">
+                        <i class="fa-solid fa-table-list mr-1"></i> Lista / Anki
+                    </button>
+                </div>
+            </div>
+
+            <!-- Estado vazio -->
+            <div id="emptyState" class="flex-1 min-h-[380px] bg-slate-900/40 border-2 border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center p-8 text-center">
+                <div class="h-16 w-16 bg-slate-800/80 rounded-2xl flex items-center justify-center text-amber-400 text-2xl mb-4 border border-slate-700/50 shadow-inner">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <h3 class="font-display font-bold text-lg text-slate-200">Nenhuma frase gerada ainda</h3>
+                <p class="text-xs text-slate-400 max-w-md mt-1 leading-relaxed">
+                    Escolha um tema (como <span class="text-amber-400">Supermercado</span> ou <span class="text-amber-400">Médico</span>) e um tempo verbal no painel à esquerda e clique em <b>Gerar Frases com IA</b>.
+                </p>
+                <div class="flex items-center gap-2 mt-4 text-xs text-slate-500">
+                    <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>Alemão autêntico</span>
+                    <span class="bg-slate-800 px-2 py-1 rounded border border-slate-700"><i class="fa-solid fa-language text-emerald-400 mr-1"></i>PT-BR natural</span>
+                </div>
+            </div>
+
+            <!-- Gerando -->
+            <div id="loadingState" class="hidden min-h-[380px] bg-slate-900/60 border border-slate-800 rounded-2xl flex flex-col items-center justify-center p-8 text-center space-y-5">
+                <div class="relative">
+                    <div class="w-16 h-16 border-4 border-amber-500/20 border-t-amber-400 rounded-full animate-spin"></div>
+                    <i class="fa-solid fa-wand-magic-sparkles absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-400 text-lg"></i>
+                </div>
+                <div class="space-y-1">
+                    <h3 id="loadingTitle" class="font-display font-bold text-base text-slate-100">Criando frases hiper-naturais…</h3>
+                    <p id="loadingText" class="text-xs text-slate-400">Preparando o pedido…</p>
+                </div>
+                <div class="w-full max-w-sm space-y-1.5">
+                    <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div id="loadingBar" class="h-full w-0 bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-500">
+                        <span id="loadingCount">0 frases</span>
+                        <span id="loadingElapsed">0 s</span>
+                    </div>
+                </div>
+                <button id="cancelGenBtn" type="button" class="text-xs text-slate-400 hover:text-red-300 border border-slate-700 hover:border-red-500/40 rounded-lg px-3 py-1.5"><i class="fa-solid fa-stop mr-1"></i>Cancelar</button>
+            </div>
+
+            <!-- Erro de geração -->
+            <div id="errorBox" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-4 text-sm text-red-200 flex items-start gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-red-400 mt-0.5"></i>
+                <div class="flex-1 space-y-2">
+                    <p id="errorText"></p>
+                    <div class="flex gap-3 text-xs">
+                        <button id="errorRetry" type="button" class="font-semibold text-red-100 underline">Tentar de novo</button>
+                        <button id="errorSettings" type="button" class="font-semibold text-red-100 underline">Abrir configurações da IA</button>
+                    </div>
+                </div>
+                <button id="errorClose" type="button" class="text-red-300 hover:text-white" title="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="gridContainer" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+            <div id="tableContainer" class="hidden overflow-x-auto bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800">
+                        <tr>
+                            <th class="p-3 w-12 text-center">#</th>
+                            <th class="p-3 min-w-[180px]">Frente (Alemão)</th>
+                            <th class="p-3 min-w-[180px]">Verso (Português)</th>
+                            <th class="p-3 min-w-[120px]">Tempo / Gramática</th>
+                            <th class="p-3 w-20 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-800/60"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center text-[11px] text-slate-600 py-4">
+        FlashGerman <span id="appVersion"></span> · código aberto no
+        <button id="repoLink" type="button" class="underline hover:text-slate-400">GitHub</button>
+    </footer>
+
+    <!-- Modal: como importar no Anki -->
+    <div id="ankiGuideModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" data-modal>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-display font-bold text-lg text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-amber-400"></i> Como importar no Anki
+                </h3>
+                <button type="button" data-close-modal class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-4 text-xs text-slate-300 leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+                <div class="flex gap-3 items-start bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <span class="bg-amber-500 text-slate-950 font-bold rounded-lg h-6 w-6 flex items-center justify-center shrink-0">1</span>
+                    <div><strong class="text-slate-100">Baixe o arquivo CSV:</strong>
+                        <p class="text-slate-400 mt-0.5">Clique em <span class="text-emerald-400 font-semibold">Baixar .CSV</span>. O arquivo vai para a sua pasta de Downloads.</p></div>
+                </div>
+                <div class="flex gap-3 items-start bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <span class="bg-amber-500 text-slate-950 font-bold rounded-lg h-6 w-6 flex items-center justify-center shrink-0">2</span>
+                    <div><strong class="text-slate-100">Abra o Anki no computador:</strong>
+                        <p class="text-slate-400 mt-0.5">Vá em <code class="bg-slate-800 text-amber-300 px-1.5 py-0.5 rounded">Arquivo ➔ Importar…</code> (atalho <kbd class="bg-slate-800 text-slate-300 px-1 py-0.5 rounded">Ctrl + Shift + I</kbd> / <kbd class="bg-slate-800 text-slate-300 px-1 py-0.5 rounded">Cmd + Shift + I</kbd>) e escolha o arquivo.</p></div>
+                </div>
+                <div class="flex gap-3 items-start bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <span class="bg-amber-500 text-slate-950 font-bold rounded-lg h-6 w-6 flex items-center justify-center shrink-0">3</span>
+                    <div><strong class="text-slate-100">Confira e importe:</strong>
+                        <p class="text-slate-400 mt-0.5">O arquivo já diz ao Anki (versão 2.1.54 ou mais nova) que o separador é <b class="text-slate-200">ponto e vírgula</b>, que tem <b class="text-slate-200">HTML</b> e que a 3ª coluna são as <b class="text-slate-200">etiquetas</b>. Só escolha o tipo de nota <b class="text-slate-200">Básico</b> e o baralho de destino:</p>
+                        <ul class="list-disc list-inside mt-1 text-slate-400 space-y-1">
+                            <li>Campo 1 = <b class="text-slate-200">Frente (alemão)</b></li>
+                            <li>Campo 2 = <b class="text-slate-200">Verso (tradução + gramática + diálogo)</b></li>
+                            <li>Coluna 3 = <b class="text-slate-200">Etiquetas</b> (tema, tempo verbal e nível)</li>
+                        </ul></div>
+                </div>
+                <div class="bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl text-amber-300 text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb text-amber-400 text-lg"></i>
+                    <span>Também funciona em outros apps de flashcards que importam CSV (Quizlet, Mochi, RemNote…). Nesses, as 4 primeiras linhas que começam com <code>#</code> podem ser apagadas.</span>
+                </div>
+            </div>
+            <button type="button" data-close-modal class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 rounded-xl transition">Entendi! Voltar ao gerador</button>
+        </div>
+    </div>
+
+    <!-- Modal: editar cartão -->
+    <div id="editModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" data-modal>
+        <form id="editForm" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-display font-bold text-base text-slate-100">Editar Cartão</h3>
+                <button type="button" data-close-modal class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <input type="hidden" id="editCardId">
+            <div class="space-y-3 text-xs">
+                <div><label for="editGerman" class="block font-semibold text-slate-300 mb-1">Frase em alemão (frente):</label>
+                    <input type="text" id="editGerman" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-amber-400"></div>
+                <div><label for="editPt" class="block font-semibold text-slate-300 mb-1">Tradução em português (verso):</label>
+                    <input type="text" id="editPt" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-amber-400"></div>
+                <div><label for="editPronunciation" class="block font-semibold text-slate-300 mb-1">Dica de pronúncia:</label>
+                    <input type="text" id="editPronunciation" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-amber-400"></div>
+                <div><label for="editGrammar" class="block font-semibold text-slate-300 mb-1">Explicação gramatical / dica:</label>
+                    <textarea id="editGrammar" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-amber-400"></textarea></div>
+                <div><label for="editContext" class="block font-semibold text-slate-300 mb-1">Diálogo de contexto:</label>
+                    <textarea id="editContext" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-amber-400"></textarea></div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl transition text-xs">Salvar alterações</button>
+                <button type="button" data-close-modal class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-4 py-2.5 rounded-xl transition text-xs">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tela final ao sair -->
+    <div id="byeOverlay" class="hidden fixed inset-0 z-[60] bg-slate-950 flex flex-col items-center justify-center gap-3 text-center p-6">
+        <div class="h-14 w-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-emerald-500 flex items-center justify-center text-slate-950 font-black text-2xl">DE</div>
+        <h2 class="font-display font-bold text-xl">Bis bald! 👋</h2>
+        <p class="text-sm text-slate-400">O FlashGerman foi encerrado. Pode fechar esta janela.</p>
+    </div>
+
+    <!-- Aviso (toast) -->
+    <div id="toast" role="status" aria-live="polite" class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-slate-800 border border-slate-700 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs max-w-sm">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toastMsg"></span>
+    </div>
+</body>
+</html>

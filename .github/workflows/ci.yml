@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Formatação
+        run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - name: Testes
+        run: |
+          go vet ./...
+          go test -race ./...
+          node tools/web/test/anki.test.mjs
+      - name: Compila para todos os sistemas
+        run: |
+          for t in windows/amd64 windows/arm64 darwin/amd64 darwin/arm64 linux/amd64 linux/arm64; do
+            GOOS=${t%/*} GOARCH=${t#*/} CGO_ENABLED=0 go build -o /dev/null . || exit 1
+          done

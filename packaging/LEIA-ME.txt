@@ -1,0 +1,22 @@
+FlashGerman - frases alemãs do dia a dia para o Anki
+=====================================================
+
+COMO ABRIR
+  Windows: dê dois cliques em FlashGerman.exe.
+           Se aparecer "O Windows protegeu o computador", clique em
+           "Mais informações" e depois em "Executar assim mesmo"
+           (o aviso aparece porque o programa não tem assinatura paga).
+  Linux:   execute ./FlashGerman (precisa do Chrome, Chromium, Edge ou
+           Brave instalado para abrir como janela; senão abre no navegador padrão).
+
+O app abre numa janela própria. Para fechar, feche a janela (ou use o
+botão de desligar no canto superior direito).
+
+PORTÁTIL
+  Tudo (configurações, baralho, IA local) fica na pasta "data", criada
+  ao lado do programa. Para levar para outro computador ou pendrive,
+  copie a pasta inteira. Para desinstalar, apague a pasta.
+
+  A pasta "data" guarda sua chave de API: não compartilhe essa pasta.
+
+Ajuda e novas versões: https://github.com/MaloneFreak/FlashGerman

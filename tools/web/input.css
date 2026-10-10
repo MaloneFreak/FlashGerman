@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cartões que viram (flip) */
+.card-flip-container { perspective: 1000px; }
+.card-flip-inner {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+.card-flip-container.flipped .card-flip-inner { transform: rotateY(180deg); }
+.card-front, .card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+.card-back { transform: rotateY(180deg); }
+.card-flip-container:focus-visible { outline: 2px solid #fbbf24; outline-offset: 3px; border-radius: 1rem; }
+
+/* Barras de rolagem discretas */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #1e293b; }
+::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+select option { background: #020617; }
+details > summary::-webkit-details-marker { color: #64748b; }

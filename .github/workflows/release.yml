@@ -1,0 +1,67 @@
+# Publica uma nova versão: crie e envie uma tag, por exemplo
+#   git tag v1.0.1 && git push origin v1.0.1
+# O GitHub compila para Windows, macOS e Linux e cria a página de downloads (Release).
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest   # no macOS dá para gerar o .app com ícone e assinatura ad-hoc
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Testes
+        run: |
+          go vet ./...
+          go test ./...
+          node tools/web/test/anki.test.mjs
+
+      - name: Ícone e versão do executável do Windows
+        continue-on-error: true   # se a ferramenta falhar, o .exe só fica sem ícone
+        run: |
+          go install github.com/tc-hib/go-winres@latest
+          V="${GITHUB_REF_NAME#v}"
+          "$(go env GOPATH)/bin/go-winres" simply \
+            --arch amd64,arm64 \
+            --icon assets/icon-256.png \
+            --manifest gui \
+            --product-name FlashGerman \
+            --file-description "FlashGerman - frases alemãs para o Anki" \
+            --product-version "$V" --file-version "$V"
+
+      - name: Compilar e empacotar
+        run: ./scripts/build.sh "${GITHUB_REF_NAME}"
+
+      - name: Criar a página de downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<NOTES
+          ## Downloads
+
+          | Sistema | Arquivo |
+          |---|---|
+          | **Windows** (a maioria dos PCs) | \`FlashGerman-windows-x64.zip\` |
+          | Windows em ARM (Snapdragon) | \`FlashGerman-windows-arm64.zip\` |
+          | **Mac** com chip Apple (M1, M2, M3, M4…) | \`FlashGerman-macos-apple-silicon.zip\` |
+          | Mac com Intel | \`FlashGerman-macos-intel.zip\` |
+          | Linux (x64 / ARM64) | \`FlashGerman-linux-x64.tar.gz\` / \`FlashGerman-linux-arm64.tar.gz\` |
+
+          Extraia o arquivo e abra o **FlashGerman**. Não precisa instalar nada.
+          Veja o [passo a passo no README](https://github.com/${GITHUB_REPOSITORY}#readme), incluindo o que fazer com os avisos do Windows e do macOS.
+          NOTES
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* --title "FlashGerman $GITHUB_REF_NAME" --notes-file notes.md
+          fi

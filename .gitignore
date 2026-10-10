@@ -1,0 +1,12 @@
+# Dados locais do app (config com chaves de API, baralho, modelos baixados)
+/data/
+# Builds
+/dist/
+/FlashGerman
+/FlashGerman.exe
+*.exe
+# Ferramentas da interface
+/tools/web/node_modules/
+# Sistema
+.DS_Store
+Thumbs.db
