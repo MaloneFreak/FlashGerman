@@ -151,12 +151,7 @@ Alterou classes do Tailwind no `index.html`/`app.js`? Gere o CSS de novo:
 cd tools/web && npm install && npm run build
 ```
 
-Publicar uma versão nova (o GitHub Actions compila e cria a página de downloads):
-
-```bash
-git tag v1.0.1
-git push origin v1.0.1
-```
+Publicar uma versão nova: edite o arquivo [`VERSION`](VERSION) (por exemplo `v1.0.1`), faça commit e push na `main`. O GitHub Actions roda os testes, compila para todos os sistemas e cria a página de downloads sozinho. Também dá para disparar em **Actions → Release → Run workflow**.
 
 ## Créditos e licenças
 

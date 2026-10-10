@@ -1,11 +1,14 @@
-# Publica uma nova versão: crie e envie uma tag, por exemplo
-#   git tag v1.0.1 && git push origin v1.0.1
+# Publica uma nova versão automaticamente quando o arquivo VERSION muda na branch main.
+# Para lançar a próxima versão: edite VERSION (ex.: v1.0.1), faça commit e push.
+# Também dá para disparar à mão em: Actions → Release → Run workflow.
 # O GitHub compila para Windows, macOS e Linux e cria a página de downloads (Release).
 name: Release
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths: [VERSION]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,21 +19,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Versão
+        id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="$(tr -d '[:space:]' < VERSION)"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          if gh release view "$V" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "A versão $V já foi publicada; nada a fazer."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-go@v5
+        if: steps.v.outputs.skip != 'true'
         with:
           go-version: stable
 
       - name: Testes
+        if: steps.v.outputs.skip != 'true'
         run: |
           go vet ./...
           go test ./...
           node tools/web/test/anki.test.mjs
 
       - name: Ícone e versão do executável do Windows
+        if: steps.v.outputs.skip != 'true'
         continue-on-error: true   # se a ferramenta falhar, o .exe só fica sem ícone
         run: |
           go install github.com/tc-hib/go-winres@latest
-          V="${GITHUB_REF_NAME#v}"
+          V="${{ steps.v.outputs.version }}"
+          V="${V#v}"
           "$(go env GOPATH)/bin/go-winres" simply \
             --arch amd64,arm64 \
             --icon assets/icon-256.png \
@@ -40,11 +59,14 @@ jobs:
             --product-version "$V" --file-version "$V"
 
       - name: Compilar e empacotar
-        run: ./scripts/build.sh "${GITHUB_REF_NAME}"
+        if: steps.v.outputs.skip != 'true'
+        run: ./scripts/build.sh "${{ steps.v.outputs.version }}"
 
       - name: Criar a página de downloads
+        if: steps.v.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.v.outputs.version }}
         run: |
           cat > notes.md <<NOTES
           ## Downloads
@@ -60,8 +82,4 @@ jobs:
           Extraia o arquivo e abra o **FlashGerman**. Não precisa instalar nada.
           Veja o [passo a passo no README](https://github.com/${GITHUB_REPOSITORY}#readme), incluindo o que fazer com os avisos do Windows e do macOS.
           NOTES
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
-          else
-            gh release create "$GITHUB_REF_NAME" dist/* --title "FlashGerman $GITHUB_REF_NAME" --notes-file notes.md
-          fi
+          gh release create "$V" dist/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "FlashGerman $V" --notes-file notes.md
