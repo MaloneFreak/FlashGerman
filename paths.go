@@ -147,12 +147,21 @@ func writeFileAtomic(path string, data []byte, perm os.FileMode) error {
 // dados ao lado do executável faria tudo se perder; usamos a pasta do usuário.
 func isTempDir(dir string) bool {
 	tmp := os.TempDir()
-	if resolved, err := filepath.EvalSymlinks(tmp); err == nil {
-		tmp = resolved
+	candidates := []string{tmp}
+	if resolved, err := filepath.EvalSymlinks(tmp); err == nil && resolved != tmp {
+		candidates = append(candidates, resolved) // macOS: /var/... -> /private/var/...
 	}
-	rel, err := filepath.Rel(tmp, dir)
-	if err != nil {
-		return false
+	dirs := []string{dir}
+	if resolved, err := filepath.EvalSymlinks(dir); err == nil && resolved != dir {
+		dirs = append(dirs, resolved)
 	}
-	return rel == "." || (!strings.HasPrefix(rel, "..") && !filepath.IsAbs(rel))
+	for _, t := range candidates {
+		for _, d := range dirs {
+			rel, err := filepath.Rel(t, d)
+			if err == nil && (rel == "." || (!strings.HasPrefix(rel, "..") && !filepath.IsAbs(rel))) {
+				return true
+			}
+		}
+	}
+	return false
 }
