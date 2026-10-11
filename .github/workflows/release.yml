@@ -35,6 +35,7 @@ jobs:
         if: steps.v.outputs.skip != 'true'
         with:
           go-version: stable
+          cache: false   # o projeto não tem dependências externas (sem go.sum)
 
       - name: Testes
         if: steps.v.outputs.skip != 'true'
