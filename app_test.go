@@ -580,3 +580,45 @@ func TestOneClickInstall(t *testing.T) {
 		t.Fatal("app deveria estar pronto para gerar")
 	}
 }
+
+func TestDefaultBrowserParsing(t *testing.T) {
+	cases := map[string]string{
+		"ChromeHTML": "chrome", "MSEdgeHTM": "edge", "BraveHTML": "brave", "FirefoxURL-308046B0AF4A39CB": "other",
+		"com.google.chrome": "chrome", "com.microsoft.edgemac": "edge", "com.apple.safari": "other",
+		"google-chrome.desktop": "chrome", "chromium-browser.desktop": "chromium", "firefox.desktop": "other", "": "",
+	}
+	for in, want := range cases {
+		if got := browserIDFromName(in); got != want {
+			t.Errorf("%q: esperava %q, veio %q", in, want, got)
+		}
+	}
+	plist := `(
+        {
+        LSHandlerContentType = "public.html";
+        LSHandlerRoleAll = "com.apple.safari";
+    },
+        {
+        LSHandlerPreferredVersions =         {
+            LSHandlerRoleAll = "-";
+        };
+        LSHandlerRoleAll = "com.google.chrome";
+        LSHandlerURLScheme = https;
+    },
+        {
+        LSHandlerRoleAll = "com.google.chrome";
+        LSHandlerURLScheme = http;
+    }
+)`
+	if got := parseLSHandlers(plist); got != "com.google.chrome" {
+		t.Fatalf("macOS: esperava com.google.chrome, veio %q", got)
+	}
+	if got := parseLSHandlers("(\n)"); got != "com.apple.safari" {
+		t.Fatalf("macOS sem registro deveria ser Safari, veio %q", got)
+	}
+	if !isTempDir(filepath.Join(os.TempDir(), "Temp1_FlashGerman.zip", "FlashGerman")) {
+		t.Fatal("pasta temporária não detectada")
+	}
+	if home, err := os.UserHomeDir(); err == nil && isTempDir(filepath.Join(home, "Downloads", "FlashGerman")) {
+		t.Fatal("pasta comum detectada como temporária")
+	}
+}

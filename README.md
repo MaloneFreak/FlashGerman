@@ -37,7 +37,7 @@
 2. Extraia e abra o **FlashGerman**. Não precisa instalar nada: é um único arquivo de ~8 MB.
 3. Na primeira vez, escolha como a IA vai funcionar (veja abaixo). Depois é só gerar as frases.
 
-O app abre numa janela própria (usa o Edge, Chrome ou Brave que já existe no computador). Fechou a janela, fechou o app.
+O app abre numa janela própria do seu navegador padrão (Chrome, Edge, Brave...), usando o seu perfil normal: nada de telas de boas-vindas nem pedidos de login. Se o seu navegador padrão for o Firefox ou o Safari, abre numa aba. Fechou a janela, fechou o app.
 
 > **Windows:** se aparecer "O Windows protegeu o computador", clique em **Mais informações → Executar assim mesmo**. O aviso aparece com qualquer programa novo sem certificado de assinatura (que é pago).
 >
@@ -108,7 +108,8 @@ As etiquetas seguem o padrão `FlashGerman::Tema::Supermercado`, `FlashGerman::T
 | "A chave de API foi recusada" | Copie a chave de novo, inteira. Algumas chaves levam alguns minutos para ativar. |
 | "Limite de uso atingido (429)" | O plano gratuito tem limite por minuto/dia. Espere, gere menos frases por vez ou troque de provedor. |
 | A IA local fecha ao iniciar | Pode faltar memória. Tente o modelo **Leve** ou desmarque a opção de GPU. Detalhes em `data/logs/llama-server.log`. |
-| Não abre janela, só o navegador | Normal se não houver Edge/Chrome/Brave instalado. Funciona igual. |
+| Abre numa aba em vez de janela | Normal quando o navegador padrão não é baseado em Chromium (Firefox, Safari). Funciona igual. |
+| As configurações somem a cada abertura | Extraia o .zip antes de abrir. Aberto direto de dentro do .zip, o Windows roda o app numa pasta temporária (o app detecta isso e salva os dados em `%APPDATA%\FlashGerman`). |
 | A voz não fala alemão | Instale o idioma alemão nas configurações de fala/voz do sistema. |
 
 Logs do app: `data/logs/app.log`.
@@ -128,7 +129,7 @@ prompt.go        prompt, JSON Schema e leitura tolerante da resposta
 jobs.go          gerações em segundo plano com progresso e cancelamento
 local.go         IA local: baixa o llama.cpp e o modelo, controla o llama-server
 download.go      downloads com retomada, SHA-256 e extração zip/tar.gz
-window.go        abre a janela "modo aplicativo" no Edge/Chrome
+window.go        abre a janela "modo aplicativo" no navegador padrão
 platform_*.go    detalhes de cada sistema (RAM, disco, processos)
 catalog.json     provedores sugeridos, modelos locais e motor (atualizável remotamente)
 web/             interface (index.html, app.js, anki.js, CSS e fontes locais)

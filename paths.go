@@ -52,7 +52,7 @@ func resolveDataDir(override string) (string, error) {
 				return candidate, nil
 			}
 		}
-	} else if !insideAppBundle && exe != "" {
+	} else if !insideAppBundle && exe != "" && !isTempDir(exeDir) {
 		candidate := filepath.Join(exeDir, "data")
 		if ensureWritable(candidate) == nil {
 			return candidate, nil
@@ -140,4 +140,19 @@ func writeFileAtomic(path string, data []byte, perm os.FileMode) error {
 		}
 	}
 	return nil
+}
+
+// isTempDir detecta quando o programa foi aberto de dentro do .zip sem extrair
+// (o Windows copia para uma pasta temporária e apaga depois). Nesse caso salvar os
+// dados ao lado do executável faria tudo se perder; usamos a pasta do usuário.
+func isTempDir(dir string) bool {
+	tmp := os.TempDir()
+	if resolved, err := filepath.EvalSymlinks(tmp); err == nil {
+		tmp = resolved
+	}
+	rel, err := filepath.Rel(tmp, dir)
+	if err != nil {
+		return false
+	}
+	return rel == "." || (!strings.HasPrefix(rel, "..") && !filepath.IsAbs(rel))
 }

@@ -7,8 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os/exec"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -36,9 +34,7 @@ type App struct {
 	updMu  sync.Mutex
 	update UpdateInfo
 
-	winMu      sync.Mutex
-	browserCmd *exec.Cmd
-	noWindow   bool
+	noWindow bool
 }
 
 type UpdateInfo struct {
@@ -80,44 +76,18 @@ func (app *App) openWindow() {
 	if app.noWindow {
 		return
 	}
-	cmd, err := openAppWindow(app.url(), filepath.Join(app.dataDir, "browser-profile"))
-	if err != nil {
+	if err := openAppWindow(app.url()); err != nil {
 		log.Printf("não foi possível abrir a janela: %v", err)
 		showFatal("O FlashGerman está rodando, mas não consegui abrir a janela.\nAbra no navegador: " + app.url())
-		return
 	}
-	if cmd == nil {
-		return
-	}
-	app.winMu.Lock()
-	first := app.browserCmd == nil
-	if first {
-		app.browserCmd = cmd
-	}
-	app.winMu.Unlock()
-	go func() {
-		_ = cmd.Wait()
-		if first {
-			// O processo principal do navegador terminou: todas as janelas foram fechadas.
-			app.winMu.Lock()
-			app.browserCmd = nil
-			app.winMu.Unlock()
-			app.life.BrowserExited()
-		}
-	}()
 }
 
-// Close encerra tudo de forma organizada.
+// Close encerra tudo de forma organizada. (O navegador é o da pessoa: nunca é fechado aqui.)
 func (app *App) Close() {
 	app.jobs.CancelAll()
 	app.local.CancelInstall()
 	app.local.Stop()
 	app.cancel()
-	app.winMu.Lock()
-	if app.browserCmd != nil && app.browserCmd.Process != nil {
-		_ = app.browserCmd.Process.Kill()
-	}
-	app.winMu.Unlock()
 }
 
 // configured diz se o app já pode gerar frases (senão a interface mostra a tela de setup).
@@ -246,14 +216,6 @@ func (l *Lifecycle) Bye(id string) {
 	if len(l.clients) == 0 {
 		l.emptySince = time.Now()
 	}
-	l.mu.Unlock()
-}
-
-func (l *Lifecycle) BrowserExited() {
-	l.mu.Lock()
-	l.clients = map[string]time.Time{}
-	l.everConnected = true
-	l.emptySince = time.Now()
 	l.mu.Unlock()
 }
 
